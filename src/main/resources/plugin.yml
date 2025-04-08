@@ -1,0 +1,43 @@
+name: PNN
+version: 1.0.0
+main: cn.ningmo.pnn.PNN
+api-version: 1.21
+author: 柠枺
+description: 一个不需要任何前置插件且轻量级的玩家昵称插件。
+softdepend: [PlaceholderAPI]
+
+commands:
+  pnn:
+    description: 玩家昵称插件主命令
+    usage: /pnn <set|reset|get|list|admin|reload> [参数]
+    aliases: [playernickname]
+
+permissions:
+  pnn.set:
+    description: 允许玩家设置自己的昵称
+    default: true
+  pnn.reset:
+    description: 允许玩家重置自己的昵称
+    default: true
+  pnn.get:
+    description: 允许玩家查询昵称对应的真实ID
+    default: true
+  pnn.list:
+    description: 允许玩家查看所有昵称
+    default: op
+  pnn.reload:
+    description: 允许玩家重载插件配置
+    default: op
+  pnn.chatcolor:
+    description: 允许玩家在聊天中使用颜色代码
+    default: op
+  pnn.admin:
+    description: 允许玩家使用管理员命令(如设置/重置其他玩家昵称)
+    default: op
+    children:
+      pnn.set: true
+      pnn.reset: true
+      pnn.get: true
+      pnn.list: true
+      pnn.reload: true
+      pnn.chatcolor: true 
