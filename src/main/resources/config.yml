@@ -46,8 +46,8 @@ allow-formats: true
 # true: 设置玩家的显示名称为昵称
 # false: 不修改玩家的显示名称，但可能会导致聊天中昵称显示不正常
 # 注意: 一些插件依赖DisplayName来显示玩家名称
-# 默认: true（设置）
-set-display-name: true
+# 默认: false（设置）
+set-display-name: false
 
 #-------------------------------
 #              ==聊天格式配置==
@@ -58,7 +58,7 @@ set-display-name: true
 # false: 保持服务器默认聊天格式，只通过DisplayName影响聊天中的名称，不更改TAB列表
 # 注意: 即使设为false，如果set-display-name为true，玩家的显示名称(DisplayName)仍会更改
 # 默认: false（不覆盖）
-override-chat-format: false
+override-chat-format: true
 
 # 聊天格式相关配置
 # 仅在override-chat-format为true时生效
@@ -70,7 +70,7 @@ chat-format:
   # %msg% - 聊天内容
   # %world% - 玩家所在世界
   # 在启用PlaceholderAPI后还可使用其他插件的占位符
-  format: "&7[&r%pnn%&7] &f%msg%"
+  format: "&7[&r%pnn%&7]<%player%> &f%msg%"
   
   # 玩家加入服务器消息格式
   # 设置为空字符串("")将禁用加入消息
