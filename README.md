@@ -1,7 +1,7 @@
 # PNN (Player Nickname)
 
-![构建状态](https://github.com/{用户名}/pnn/workflows/PNN构建流程/badge.svg)
-![发布状态](https://github.com/{用户名}/pnn/workflows/PNN发布流程/badge.svg)
+![构建状态](https://github.com/RunicWonders/pnn/workflows/PNN构建流程/badge.svg)
+![发布状态](https://github.com/RunicWonders/pnn/workflows/PNN发布流程/badge.svg)
 
 一个轻量级的玩家昵称插件，不需要任何前置插件。支持PlaceholderAPI（可选）。
 
