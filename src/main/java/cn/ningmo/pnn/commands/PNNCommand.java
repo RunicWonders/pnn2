@@ -186,11 +186,15 @@ public class PNNCommand implements CommandExecutor, TabCompleter {
         if (success) {
             player.sendMessage(ChatColor.GREEN + "昵称已重置！");
             
-            // 总是重置显示名称
-            player.setDisplayName(player.getName());
+            boolean setDisplayName = plugin.getConfig().getBoolean("set-display-name", true);
+            boolean overrideChatFormat = plugin.getConfig().getBoolean("override-chat-format", false);
+            
+            // 根据配置决定是否重置显示名称
+            if (setDisplayName) {
+                player.setDisplayName(player.getName());
+            }
             
             // 只有在覆盖模式下才重置Tab列表名称
-            boolean overrideChatFormat = plugin.getConfig().getBoolean("override-chat-format", false);
             if (overrideChatFormat) {
                 try {
                     player.setPlayerListName(player.getName());
@@ -393,11 +397,15 @@ public class PNNCommand implements CommandExecutor, TabCompleter {
                     sender.sendMessage(ChatColor.GREEN + "成功重置玩家 " + targetPlayer.getName() + " 的昵称。");
                     targetPlayer.sendMessage(ChatColor.YELLOW + "管理员重置了你的昵称。");
                     
-                    // 总是重置显示名称
-                    targetPlayer.setDisplayName(targetPlayer.getName());
+                    boolean setDisplayName = plugin.getConfig().getBoolean("set-display-name", true);
+                    boolean overrideChatFormat = plugin.getConfig().getBoolean("override-chat-format", false);
+                    
+                    // 根据配置决定是否重置显示名称
+                    if (setDisplayName) {
+                        targetPlayer.setDisplayName(targetPlayer.getName());
+                    }
                     
                     // 只有在覆盖模式下才重置Tab列表名称
-                    boolean overrideChatFormat = plugin.getConfig().getBoolean("override-chat-format", false);
                     if (overrideChatFormat) {
                         try {
                             targetPlayer.setPlayerListName(targetPlayer.getName());
@@ -425,9 +433,12 @@ public class PNNCommand implements CommandExecutor, TabCompleter {
     private void updatePlayerDisplayNames(Player player) {
         String nickname = nicknameManager.getNickname(player);
         boolean overrideChatFormat = plugin.getConfig().getBoolean("override-chat-format", false);
+        boolean setDisplayName = plugin.getConfig().getBoolean("set-display-name", true);
         
-        // 始终更新显示名称
-        player.setDisplayName(nickname);
+        // 根据配置决定是否设置显示名称
+        if (setDisplayName) {
+            player.setDisplayName(nickname);
+        }
         
         // 只有在覆盖模式下才更新Tab列表名称
         if (overrideChatFormat) {

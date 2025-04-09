@@ -35,12 +35,16 @@ public class ChatListener implements Listener {
         this.colorPermission = plugin.getConfig().getBoolean("chat-format.color-permission", true);
     }
     
-    @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
+    /**
+     * 处理玩家聊天事件
+     * 使用NORMAL优先级，避免过度干扰其他插件的聊天处理
+     */
+    @EventHandler(priority = EventPriority.NORMAL, ignoreCancelled = true)
     public void onPlayerChat(AsyncPlayerChatEvent event) {
         Player player = event.getPlayer();
         String nickname = nicknameManager.getNickname(player);
         
-        // 如果启用了自定义聊天格式
+        // 如果启用了自定义聊天格式 - 完全接管聊天格式
         if (overrideChatFormat) {
             String format = chatFormat;
             
@@ -72,30 +76,13 @@ public class ChatListener implements Listener {
                 event.setMessage(message);
             }
         } 
-        // 使用默认格式但替换玩家名为昵称
+        // 非覆盖模式，只有在有昵称不等于玩家名时，才 "轻微干预"
         else if (!nickname.equals(player.getName())) {
-            String format = event.getFormat();
-            
-            // 检查格式中是否包含pnn占位符
-            if (format.contains("%pnn%")) {
-                // 直接替换pnn占位符为昵称
-                format = format.replace("%pnn%", nickname);
-            } else {
-                // 保持格式不变，只替换玩家名
-                format = format.replace("%1$s", nickname);
-            }
-            
-            event.setFormat(format);
-            
-            // 在非覆盖模式下，不处理消息内容中的颜色代码
-            // 这样可以让服务器自己的聊天插件处理颜色代码
-        } 
-        // 默认格式但有pnn占位符
-        else if (event.getFormat().contains("%pnn%")) {
-            String format = event.getFormat();
-            format = format.replace("%pnn%", player.getName());
-            event.setFormat(format);
+            // 默认情况下，只通过DisplayName来影响聊天显示，不直接修改聊天格式
+            // 什么都不做，依赖DisplayName机制
+            // 注意：大多数聊天格式使用玩家的DisplayName，而不是直接从事件格式中获取
         }
-        // 其他情况下，保持原始格式和消息不变
+        
+        // 不再直接修改事件的格式，避免覆盖其他插件的聊天格式
     }
 } 

@@ -17,6 +17,7 @@ public class PlayerListener implements Listener {
     private final NicknameManager nicknameManager;
     private boolean placeholderEnabled;
     private boolean overrideChatFormat;
+    private boolean setDisplayName;
     private String joinMessage;
     private String quitMessage;
     
@@ -32,6 +33,7 @@ public class PlayerListener implements Listener {
     public void loadConfig() {
         this.placeholderEnabled = plugin.getConfig().getBoolean("placeholder", false);
         this.overrideChatFormat = plugin.getConfig().getBoolean("override-chat-format", false);
+        this.setDisplayName = plugin.getConfig().getBoolean("set-display-name", true);
         this.joinMessage = plugin.getConfig().getString("chat-format.join-message", "&e%pnn% 加入了游戏");
         this.quitMessage = plugin.getConfig().getString("chat-format.quit-message", "&e%pnn% 离开了游戏");
     }
@@ -41,17 +43,17 @@ public class PlayerListener implements Listener {
         Player player = event.getPlayer();
         String nickname = nicknameManager.getNickname(player);
         
-        // 只有当启用了覆盖模式，或者玩家有昵称且聊天中包含昵称，才设置显示名和Tab名
-        if (overrideChatFormat) {
-            // 覆盖模式下，总是设置显示名称和Tab列表名称
-            if (!nickname.equals(player.getName())) {
+        // 只在玩家有昵称且昵称不等于玩家名时更新显示
+        if (!nickname.equals(player.getName())) {
+            // 处理显示名称和TAB列表名称
+            if (overrideChatFormat) {
+                // 覆盖模式：设置显示名称和TAB列表
                 setPlayerDisplayAndTabName(player, nickname);
-            }
-        } else {
-            // 非覆盖模式下，只设置显示名称，不设置Tab列表名称
-            if (!nickname.equals(player.getName())) {
+            } else if (setDisplayName) {
+                // 非覆盖模式但启用DisplayName设置：只设置显示名称
                 player.setDisplayName(nickname);
             }
+            // 其他情况：什么都不设置
         }
         
         // 只有当启用了自定义聊天格式且配置了加入消息时，才完全覆盖加入消息
