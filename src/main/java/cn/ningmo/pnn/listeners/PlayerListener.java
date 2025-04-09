@@ -41,17 +41,20 @@ public class PlayerListener implements Listener {
         Player player = event.getPlayer();
         String nickname = nicknameManager.getNickname(player);
         
-        // 设置玩家的显示名称和Tab名称
-        if (!nickname.equals(player.getName())) {
-            player.setDisplayName(nickname);
-            try {
-                player.setPlayerListName(nickname);
-            } catch (Exception e) {
-                plugin.getLogger().warning("无法设置玩家" + player.getName() + "的Tab列表名称：" + e.getMessage());
+        // 只有当启用了覆盖模式，或者玩家有昵称且聊天中包含昵称，才设置显示名和Tab名
+        if (overrideChatFormat) {
+            // 覆盖模式下，总是设置显示名称和Tab列表名称
+            if (!nickname.equals(player.getName())) {
+                setPlayerDisplayAndTabName(player, nickname);
+            }
+        } else {
+            // 非覆盖模式下，只设置显示名称，不设置Tab列表名称
+            if (!nickname.equals(player.getName())) {
+                player.setDisplayName(nickname);
             }
         }
         
-        // 如果启用了自定义聊天格式，并且自定义了加入消息
+        // 只有当启用了自定义聊天格式且配置了加入消息时，才完全覆盖加入消息
         if (overrideChatFormat && joinMessage != null && !joinMessage.isEmpty()) {
             String customJoinMessage = joinMessage
                     .replace("%pnn%", nickname)
@@ -70,7 +73,7 @@ public class PlayerListener implements Listener {
             // 转换颜色代码并设置加入消息
             event.setJoinMessage(ChatColor.translateAlternateColorCodes('&', customJoinMessage));
         }
-        // 使用默认格式但替换玩家名为昵称
+        // 使用默认格式但替换玩家名为昵称 - 仅当有昵称时才替换
         else if (!nickname.equals(player.getName()) && event.getJoinMessage() != null) {
             String joinMsg = event.getJoinMessage();
             
@@ -89,6 +92,7 @@ public class PlayerListener implements Listener {
             joinMsg = joinMsg.replace("%pnn%", player.getName());
             event.setJoinMessage(joinMsg);
         }
+        // 其他情况，不修改原始加入消息
     }
     
     @EventHandler(priority = EventPriority.HIGH)
@@ -96,7 +100,7 @@ public class PlayerListener implements Listener {
         Player player = event.getPlayer();
         String nickname = nicknameManager.getNickname(player);
         
-        // 如果启用了自定义聊天格式，并且自定义了退出消息
+        // 只有当启用了自定义聊天格式且配置了退出消息时，才完全覆盖退出消息
         if (overrideChatFormat && quitMessage != null && !quitMessage.isEmpty()) {
             String customQuitMessage = quitMessage
                     .replace("%pnn%", nickname)
@@ -115,7 +119,7 @@ public class PlayerListener implements Listener {
             // 转换颜色代码并设置退出消息
             event.setQuitMessage(ChatColor.translateAlternateColorCodes('&', customQuitMessage));
         }
-        // 使用默认格式但替换玩家名为昵称
+        // 使用默认格式但替换玩家名为昵称 - 仅当有昵称时才替换
         else if (!nickname.equals(player.getName()) && event.getQuitMessage() != null) {
             String quitMsg = event.getQuitMessage();
             
@@ -133,6 +137,19 @@ public class PlayerListener implements Listener {
             String quitMsg = event.getQuitMessage();
             quitMsg = quitMsg.replace("%pnn%", player.getName());
             event.setQuitMessage(quitMsg);
+        }
+        // 其他情况，不修改原始退出消息
+    }
+    
+    /**
+     * 设置玩家的显示名称和Tab列表名称
+     */
+    private void setPlayerDisplayAndTabName(Player player, String nickname) {
+        player.setDisplayName(nickname);
+        try {
+            player.setPlayerListName(nickname);
+        } catch (Exception e) {
+            plugin.getLogger().warning("无法设置玩家" + player.getName() + "的Tab列表名称：" + e.getMessage());
         }
     }
     

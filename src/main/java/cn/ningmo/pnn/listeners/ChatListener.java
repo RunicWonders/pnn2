@@ -39,12 +39,6 @@ public class ChatListener implements Listener {
     public void onPlayerChat(AsyncPlayerChatEvent event) {
         Player player = event.getPlayer();
         String nickname = nicknameManager.getNickname(player);
-        String message = event.getMessage();
-        
-        // 处理聊天消息中的颜色代码权限
-        if (message.contains("&") && (!colorPermission || player.hasPermission("pnn.chatcolor"))) {
-            message = ChatColor.translateAlternateColorCodes('&', message);
-        }
         
         // 如果启用了自定义聊天格式
         if (overrideChatFormat) {
@@ -70,7 +64,13 @@ public class ChatListener implements Listener {
             
             // 设置聊天格式
             event.setFormat(format);
-            event.setMessage(message);
+            
+            // 处理聊天消息中的颜色代码权限
+            String message = event.getMessage();
+            if (message.contains("&") && (!colorPermission || player.hasPermission("pnn.chatcolor"))) {
+                message = ChatColor.translateAlternateColorCodes('&', message);
+                event.setMessage(message);
+            }
         } 
         // 使用默认格式但替换玩家名为昵称
         else if (!nickname.equals(player.getName())) {
@@ -86,14 +86,16 @@ public class ChatListener implements Listener {
             }
             
             event.setFormat(format);
-            event.setMessage(message);
+            
+            // 在非覆盖模式下，不处理消息内容中的颜色代码
+            // 这样可以让服务器自己的聊天插件处理颜色代码
         } 
         // 默认格式但有pnn占位符
         else if (event.getFormat().contains("%pnn%")) {
             String format = event.getFormat();
             format = format.replace("%pnn%", player.getName());
             event.setFormat(format);
-            event.setMessage(message);
         }
+        // 其他情况下，保持原始格式和消息不变
     }
 } 

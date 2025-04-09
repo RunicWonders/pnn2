@@ -186,12 +186,17 @@ public class PNNCommand implements CommandExecutor, TabCompleter {
         if (success) {
             player.sendMessage(ChatColor.GREEN + "昵称已重置！");
             
-            // 更新玩家显示名称和Tab名称
+            // 总是重置显示名称
             player.setDisplayName(player.getName());
-            try {
-                player.setPlayerListName(player.getName());
-            } catch (Exception e) {
-                plugin.getLogger().warning("无法重置玩家" + player.getName() + "的Tab列表名称：" + e.getMessage());
+            
+            // 只有在覆盖模式下才重置Tab列表名称
+            boolean overrideChatFormat = plugin.getConfig().getBoolean("override-chat-format", false);
+            if (overrideChatFormat) {
+                try {
+                    player.setPlayerListName(player.getName());
+                } catch (Exception e) {
+                    plugin.getLogger().warning("无法重置玩家" + player.getName() + "的Tab列表名称：" + e.getMessage());
+                }
             }
         } else {
             player.sendMessage(ChatColor.RED + "你没有设置昵称！");
@@ -388,12 +393,17 @@ public class PNNCommand implements CommandExecutor, TabCompleter {
                     sender.sendMessage(ChatColor.GREEN + "成功重置玩家 " + targetPlayer.getName() + " 的昵称。");
                     targetPlayer.sendMessage(ChatColor.YELLOW + "管理员重置了你的昵称。");
                     
-                    // 更新玩家显示名称和Tab名称
+                    // 总是重置显示名称
                     targetPlayer.setDisplayName(targetPlayer.getName());
-                    try {
-                        targetPlayer.setPlayerListName(targetPlayer.getName());
-                    } catch (Exception e) {
-                        plugin.getLogger().warning("无法重置玩家" + targetPlayer.getName() + "的Tab列表名称：" + e.getMessage());
+                    
+                    // 只有在覆盖模式下才重置Tab列表名称
+                    boolean overrideChatFormat = plugin.getConfig().getBoolean("override-chat-format", false);
+                    if (overrideChatFormat) {
+                        try {
+                            targetPlayer.setPlayerListName(targetPlayer.getName());
+                        } catch (Exception e) {
+                            plugin.getLogger().warning("无法重置玩家" + targetPlayer.getName() + "的Tab列表名称：" + e.getMessage());
+                        }
                     }
                 } else {
                     sender.sendMessage(ChatColor.RED + "玩家 " + targetPlayer.getName() + " 没有设置昵称！");
@@ -414,11 +424,18 @@ public class PNNCommand implements CommandExecutor, TabCompleter {
      */
     private void updatePlayerDisplayNames(Player player) {
         String nickname = nicknameManager.getNickname(player);
+        boolean overrideChatFormat = plugin.getConfig().getBoolean("override-chat-format", false);
+        
+        // 始终更新显示名称
         player.setDisplayName(nickname);
-        try {
-            player.setPlayerListName(nickname);
-        } catch (Exception e) {
-            plugin.getLogger().warning("无法设置玩家" + player.getName() + "的Tab列表名称：" + e.getMessage());
+        
+        // 只有在覆盖模式下才更新Tab列表名称
+        if (overrideChatFormat) {
+            try {
+                player.setPlayerListName(nickname);
+            } catch (Exception e) {
+                plugin.getLogger().warning("无法设置玩家" + player.getName() + "的Tab列表名称：" + e.getMessage());
+            }
         }
     }
     
