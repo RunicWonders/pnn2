@@ -1,7 +1,7 @@
 # PNN (Player Nickname)
 
-![构建状态](https://github.com/RunicWonders/pnn/workflows/PNN构建流程/badge.svg)
-![发布状态](https://github.com/RunicWonders/pnn/workflows/PNN发布流程/badge.svg)
+![构建状态](https://github.com/RunicWonders/pnn/actions/workflows/ci.yml/badge.svg)
+![发布状态](https://github.com/RunicWonders/pnn/actions/workflows/release.yml/badge.svg)
 
 一个轻量级的玩家昵称插件，不需要任何前置插件。支持PlaceholderAPI（可选）。
 
@@ -101,10 +101,10 @@ data-saving-mode: yaml
 ## 安装与下载
 
 ### 下载最新版本
-从[GitHub Releases](https://github.com/{用户名}/pnn/releases/latest)下载最新版本
+从[GitHub Releases](https://github.com/RunicWonders/pnn/releases/latest)下载最新版本
 
 ### 最新构建版本
-从GitHub Actions的[构建记录](https://github.com/{用户名}/pnn/actions/workflows/ci.yml)中获取最新构建版本
+从GitHub Actions的[构建记录](https://github.com/RunicWonders/pnn/actions/workflows/ci.yml)中获取最新构建版本
 
 ## 构建方法
 
@@ -112,7 +112,7 @@ data-saving-mode: yaml
 
 ```bash
 # 克隆仓库
-git clone https://github.com/{用户名}/pnn.git
+git clone https://github.com/RunicWonders/pnn.git
 cd pnn
 
 # 使用Maven构建
