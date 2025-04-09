@@ -1,0 +1,45 @@
+name: PNN构建流程
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+      
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: 设置JDK 21
+      uses: actions/setup-java@v3
+      with:
+        java-version: '21'
+        distribution: 'temurin'
+        cache: maven
+        
+    - name: 获取Git短哈希
+      id: vars
+      run: echo "sha_short=$(git rev-parse --short HEAD)" >> $GITHUB_OUTPUT
+        
+    - name: 打印版本信息
+      run: echo "构建版本 PNN-${{ steps.vars.outputs.sha_short }}"
+        
+    - name: 使用Maven构建
+      run: mvn -B package --file pom.xml
+      
+    - name: 重命名构建产物
+      run: |
+        mkdir -p target/artifacts
+        cp target/pnn-*.jar target/artifacts/PNN-${{ steps.vars.outputs.sha_short }}.jar
+      
+    - name: 上传构建产物
+      uses: actions/upload-artifact@v3
+      with:
+        name: PNN-${{ steps.vars.outputs.sha_short }}
+        path: target/artifacts/PNN-${{ steps.vars.outputs.sha_short }}.jar 

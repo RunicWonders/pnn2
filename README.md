@@ -1,5 +1,8 @@
 # PNN (Player Nickname)
 
+![构建状态](https://github.com/{用户名}/pnn/workflows/PNN构建流程/badge.svg)
+![发布状态](https://github.com/{用户名}/pnn/workflows/PNN发布流程/badge.svg)
+
 一个轻量级的玩家昵称插件，不需要任何前置插件。支持PlaceholderAPI（可选）。
 
 ## 功能
@@ -94,6 +97,29 @@ allow-formats: true
 # 数据保存模式（目前仅支持yaml）
 data-saving-mode: yaml
 ```
+
+## 安装与下载
+
+### 下载最新版本
+从[GitHub Releases](https://github.com/{用户名}/pnn/releases/latest)下载最新版本
+
+### 最新构建版本
+从GitHub Actions的[构建记录](https://github.com/{用户名}/pnn/actions/workflows/ci.yml)中获取最新构建版本
+
+## 构建方法
+
+如果你想自己构建插件：
+
+```bash
+# 克隆仓库
+git clone https://github.com/{用户名}/pnn.git
+cd pnn
+
+# 使用Maven构建
+mvn clean package
+```
+
+构建完成后，JAR文件将位于`target`目录。
 
 ## 作者
 

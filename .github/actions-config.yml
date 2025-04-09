@@ -1,0 +1,14 @@
+# GitHub Actions 配置
+artifact_retention_days: 90
+maven_args: "-B package -DskipTests --file pom.xml"
+
+# 构建输出路径
+output_path: "target/artifacts"
+
+# 插件信息
+plugin_prefix: "PNN"
+plugin_name: "玩家昵称插件"
+plugin_description: "一个轻量级的玩家昵称插件，不需要任何前置插件。"
+
+# 作者信息
+author: "柠枺" 
