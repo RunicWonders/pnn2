@@ -108,7 +108,7 @@ data-saving-mode: yaml
 
 ```bash
 # 克隆仓库
-git clone https://github.com/RunicWonders/pnn.git
+git clone https://github.com/RunicWonders/pnn2.git pnn
 cd pnn
 
 # 使用Maven构建
