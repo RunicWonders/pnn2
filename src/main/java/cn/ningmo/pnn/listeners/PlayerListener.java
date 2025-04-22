@@ -17,9 +17,11 @@ public class PlayerListener implements Listener {
     private final NicknameManager nicknameManager;
     private boolean placeholderEnabled;
     private boolean overrideChatFormat;
+    private boolean overrideTabFormat;
     private boolean setDisplayName;
     private String joinMessage;
     private String quitMessage;
+    private String tabFormat;
     
     public PlayerListener(PNN plugin) {
         this.plugin = plugin;
@@ -33,9 +35,11 @@ public class PlayerListener implements Listener {
     public void loadConfig() {
         this.placeholderEnabled = plugin.getConfig().getBoolean("placeholder", false);
         this.overrideChatFormat = plugin.getConfig().getBoolean("override-chat-format", false);
+        this.overrideTabFormat = plugin.getConfig().getBoolean("override-tab-format", false);
         this.setDisplayName = plugin.getConfig().getBoolean("set-display-name", true);
         this.joinMessage = plugin.getConfig().getString("chat-format.join-message", "&e%pnn% 加入了游戏");
         this.quitMessage = plugin.getConfig().getString("chat-format.quit-message", "&e%pnn% 离开了游戏");
+        this.tabFormat = plugin.getConfig().getString("tab-format", "&7[&r%pnn%&7] %player%");
     }
     
     @EventHandler(priority = EventPriority.HIGH)
@@ -45,15 +49,15 @@ public class PlayerListener implements Listener {
         
         // 只在玩家有昵称且昵称不等于玩家名时更新显示
         if (!nickname.equals(player.getName())) {
-            // 处理显示名称和TAB列表名称
-            if (overrideChatFormat) {
-                // 覆盖模式：设置显示名称和TAB列表
-                setPlayerDisplayAndTabName(player, nickname);
-            } else if (setDisplayName) {
-                // 非覆盖模式但启用DisplayName设置：只设置显示名称
+            // 设置玩家显示名称
+            if (setDisplayName || overrideChatFormat) {
                 player.setDisplayName(nickname);
             }
-            // 其他情况：什么都不设置
+            
+            // 单独控制是否覆盖TAB列表
+            if (overrideTabFormat) {
+                setPlayerTabName(player, nickname);
+            }
         }
         
         // 只有当启用了自定义聊天格式且配置了加入消息时，才完全覆盖加入消息
@@ -144,12 +148,27 @@ public class PlayerListener implements Listener {
     }
     
     /**
-     * 设置玩家的显示名称和Tab列表名称
+     * 只设置玩家的Tab列表名称
      */
-    private void setPlayerDisplayAndTabName(Player player, String nickname) {
-        player.setDisplayName(nickname);
+    private void setPlayerTabName(Player player, String nickname) {
+        String formattedTabName = tabFormat
+                .replace("%pnn%", nickname)
+                .replace("%player%", player.getName());
+        
+        // 如果启用了PlaceholderAPI，处理其他占位符
+        if (placeholderEnabled && Bukkit.getPluginManager().isPluginEnabled("PlaceholderAPI")) {
+            try {
+                formattedTabName = me.clip.placeholderapi.PlaceholderAPI.setPlaceholders(player, formattedTabName);
+            } catch (Exception e) {
+                plugin.getLogger().warning("处理玩家" + player.getName() + "的TAB列表名称占位符时出错: " + e.getMessage());
+            }
+        }
+        
+        // 转换颜色代码
+        formattedTabName = ChatColor.translateAlternateColorCodes('&', formattedTabName);
+        
         try {
-            player.setPlayerListName(nickname);
+            player.setPlayerListName(formattedTabName);
         } catch (Exception e) {
             plugin.getLogger().warning("无法设置玩家" + player.getName() + "的Tab列表名称：" + e.getMessage());
         }

@@ -49,6 +49,21 @@ allow-formats: true
 # 默认: false（设置）
 set-display-name: false
 
+# 是否单独覆盖TAB列表中的名称格式
+# true: 使用下方自定义的TAB列表格式
+# false: 保持服务器默认TAB列表格式
+# 注意: 如果override-chat-format为true，此选项无效（将总是覆盖）
+# 默认: false（不覆盖，但如果override-chat-format为true则仍会覆盖）
+override-tab-format: false
+
+# TAB列表中的名称格式
+# 仅在override-tab-format为true或override-chat-format为true时生效
+# 可用占位符:
+# %pnn% - 玩家昵称
+# %player% - 玩家真实ID
+# 默认: "&7[&r%pnn%&7] %player%"
+tab-format: "&7[&r%pnn%&7] %player%"
+
 #-------------------------------
 #              ==聊天格式配置==
 #-------------------------------

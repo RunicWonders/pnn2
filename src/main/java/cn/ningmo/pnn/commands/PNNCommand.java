@@ -188,14 +188,15 @@ public class PNNCommand implements CommandExecutor, TabCompleter {
             
             boolean setDisplayName = plugin.getConfig().getBoolean("set-display-name", true);
             boolean overrideChatFormat = plugin.getConfig().getBoolean("override-chat-format", false);
+            boolean overrideTabFormat = plugin.getConfig().getBoolean("override-tab-format", false);
             
             // 根据配置决定是否重置显示名称
-            if (setDisplayName) {
+            if (setDisplayName || overrideChatFormat) {
                 player.setDisplayName(player.getName());
             }
             
-            // 只有在覆盖模式下才重置Tab列表名称
-            if (overrideChatFormat) {
+            // 根据配置决定是否重置TAB列表名称
+            if (overrideTabFormat) {
                 try {
                     player.setPlayerListName(player.getName());
                 } catch (Exception e) {
@@ -399,14 +400,15 @@ public class PNNCommand implements CommandExecutor, TabCompleter {
                     
                     boolean setDisplayName = plugin.getConfig().getBoolean("set-display-name", true);
                     boolean overrideChatFormat = plugin.getConfig().getBoolean("override-chat-format", false);
+                    boolean overrideTabFormat = plugin.getConfig().getBoolean("override-tab-format", false);
                     
                     // 根据配置决定是否重置显示名称
-                    if (setDisplayName) {
+                    if (setDisplayName || overrideChatFormat) {
                         targetPlayer.setDisplayName(targetPlayer.getName());
                     }
                     
-                    // 只有在覆盖模式下才重置Tab列表名称
-                    if (overrideChatFormat) {
+                    // 根据配置决定是否重置TAB列表名称
+                    if (overrideTabFormat) {
                         try {
                             targetPlayer.setPlayerListName(targetPlayer.getName());
                         } catch (Exception e) {
@@ -433,17 +435,36 @@ public class PNNCommand implements CommandExecutor, TabCompleter {
     private void updatePlayerDisplayNames(Player player) {
         String nickname = nicknameManager.getNickname(player);
         boolean overrideChatFormat = plugin.getConfig().getBoolean("override-chat-format", false);
+        boolean overrideTabFormat = plugin.getConfig().getBoolean("override-tab-format", false);
         boolean setDisplayName = plugin.getConfig().getBoolean("set-display-name", true);
         
         // 根据配置决定是否设置显示名称
-        if (setDisplayName) {
+        if (setDisplayName || overrideChatFormat) {
             player.setDisplayName(nickname);
         }
         
-        // 只有在覆盖模式下才更新Tab列表名称
-        if (overrideChatFormat) {
+        // 处理TAB列表名称 - 只在override-tab-format为true时设置
+        if (overrideTabFormat) {
+            String tabFormat = plugin.getConfig().getString("tab-format", "&7[&r%pnn%&7] %player%");
             try {
-                player.setPlayerListName(nickname);
+                String formattedTabName = tabFormat
+                        .replace("%pnn%", nickname)
+                        .replace("%player%", player.getName());
+                
+                // 如果启用了PlaceholderAPI，处理其他占位符
+                boolean placeholderEnabled = plugin.getConfig().getBoolean("placeholder", false);
+                if (placeholderEnabled && Bukkit.getPluginManager().isPluginEnabled("PlaceholderAPI")) {
+                    try {
+                        formattedTabName = me.clip.placeholderapi.PlaceholderAPI.setPlaceholders(player, formattedTabName);
+                    } catch (Exception e) {
+                        plugin.getLogger().warning("处理玩家" + player.getName() + "的TAB列表名称占位符时出错: " + e.getMessage());
+                    }
+                }
+                
+                // 转换颜色代码
+                formattedTabName = ChatColor.translateAlternateColorCodes('&', formattedTabName);
+                
+                player.setPlayerListName(formattedTabName);
             } catch (Exception e) {
                 plugin.getLogger().warning("无法设置玩家" + player.getName() + "的Tab列表名称：" + e.getMessage());
             }
