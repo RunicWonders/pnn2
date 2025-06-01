@@ -3,6 +3,7 @@ package cn.ningmo.pnn;
 import cn.ningmo.pnn.commands.PNNCommand;
 import cn.ningmo.pnn.listeners.ChatListener;
 import cn.ningmo.pnn.listeners.PlayerListener;
+import cn.ningmo.pnn.managers.EconomyManager;
 import cn.ningmo.pnn.managers.NicknameManager;
 import cn.ningmo.pnn.placeholders.PNNPlaceholderExpansion;
 import org.bukkit.Bukkit;
@@ -12,6 +13,7 @@ public class PNN extends JavaPlugin {
     
     private static PNN instance;
     private NicknameManager nicknameManager;
+    private EconomyManager economyManager;
     private PNNPlaceholderExpansion placeholderExpansion;
     private ChatListener chatListener;
     private PlayerListener playerListener;
@@ -23,8 +25,9 @@ public class PNN extends JavaPlugin {
         // 保存默认配置
         saveDefaultConfig();
         
-        // 初始化昵称管理器
+        // 初始化管理器
         nicknameManager = new NicknameManager(this);
+        economyManager = new EconomyManager(this);
         
         // 注册命令
         getCommand("pnn").setExecutor(new PNNCommand(this));
@@ -74,6 +77,10 @@ public class PNN extends JavaPlugin {
             nicknameManager.reloadConfig();
         }
         
+        if (economyManager != null) {
+            economyManager.reloadConfig();
+        }
+        
         if (chatListener != null) {
             chatListener.loadConfig();
         }
@@ -91,5 +98,9 @@ public class PNN extends JavaPlugin {
     
     public NicknameManager getNicknameManager() {
         return nicknameManager;
+    }
+    
+    public EconomyManager getEconomyManager() {
+        return economyManager;
     }
 } 

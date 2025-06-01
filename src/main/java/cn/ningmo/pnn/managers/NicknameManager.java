@@ -28,6 +28,8 @@ public class NicknameManager {
     private int maxNicknameLength;
     private boolean allowColors;
     private boolean allowFormats;
+    private String pnnFormat;
+    private String pnnNicknameFormat;
     
     public NicknameManager(PNN plugin) {
         this.plugin = plugin;
@@ -44,6 +46,8 @@ public class NicknameManager {
         this.maxNicknameLength = plugin.getConfig().getInt("max-nickname-length", 32);
         this.allowColors = plugin.getConfig().getBoolean("allow-colors", true);
         this.allowFormats = plugin.getConfig().getBoolean("allow-formats", true);
+        this.pnnFormat = plugin.getConfig().getString("placeholder-format.pnn-format", "{nickname}");
+        this.pnnNicknameFormat = plugin.getConfig().getString("placeholder-format.pnn-nickname-format", "{nickname}");
     }
     
     private void setupFiles() {
@@ -176,22 +180,69 @@ public class NicknameManager {
         return false;
     }
     
+    /**
+     * 获取玩家的昵称，用于%pnn%占位符
+     */
     public String getNickname(Player player) {
-        String nickname = nicknames.getOrDefault(player.getUniqueId(), player.getName());
+        String rawNickname = nicknames.get(player.getUniqueId());
+        boolean hasNickname = (rawNickname != null);
+        
+        // 使用配置的格式
+        String formattedNickname = formatPNN(player, rawNickname, hasNickname);
         
         // 如果启用了占位符支持，并且安装了PlaceholderAPI
         if (placeholderEnabled && Bukkit.getPluginManager().isPluginEnabled("PlaceholderAPI")) {
             try {
                 // 使用PlaceholderAPI解析昵称中的占位符
-                nickname = me.clip.placeholderapi.PlaceholderAPI.setPlaceholders(player, nickname);
+                formattedNickname = me.clip.placeholderapi.PlaceholderAPI.setPlaceholders(player, formattedNickname);
             } catch (Exception e) {
                 plugin.getLogger().warning("处理玩家" + player.getName() + "的昵称占位符时出错: " + e.getMessage());
             }
         }
         
-        return nickname;
+        return formattedNickname;
     }
     
+    /**
+     * 格式化%pnn%占位符
+     */
+    private String formatPNN(Player player, String rawNickname, boolean hasNickname) {
+        String result = pnnFormat;
+        
+        if (hasNickname) {
+            result = result.replace("{nickname}", rawNickname);
+        } else {
+            result = result.replace("{nickname}", player.getName());
+        }
+        
+        result = result.replace("{player}", player.getName());
+        
+        return result;
+    }
+    
+    /**
+     * 格式化%pnn_nickname%占位符
+     */
+    public String formatPNNNickname(Player player) {
+        String rawNickname = nicknames.get(player.getUniqueId());
+        boolean hasNickname = (rawNickname != null);
+        
+        String result = pnnNicknameFormat;
+        
+        if (hasNickname) {
+            result = result.replace("{nickname}", rawNickname);
+        } else {
+            result = result.replace("{nickname}", player.getName());
+        }
+        
+        result = result.replace("{player}", player.getName());
+        
+        return result;
+    }
+    
+    /**
+     * 获取玩家的原始昵称（不应用格式）
+     */
     public String getRawNickname(Player player) {
         return nicknames.getOrDefault(player.getUniqueId(), player.getName());
     }

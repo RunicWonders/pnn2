@@ -65,12 +65,12 @@ public class PNNPlaceholderExpansion extends PlaceholderExpansion {
         // 处理在线玩家的占位符
         switch (params.toLowerCase()) {
             case "nickname":
-                // 返回玩家的昵称
-                return nicknameManager.getNickname(onlinePlayer);
+                // 使用配置的格式返回玩家的昵称
+                return nicknameManager.formatPNNNickname(onlinePlayer);
                 
             case "has_nickname":
                 // 返回玩家是否有昵称
-                String nickname = nicknameManager.getNickname(onlinePlayer);
+                String nickname = nicknameManager.getRawNickname(onlinePlayer);
                 return (nickname.equals(onlinePlayer.getName())) ? "false" : "true";
                 
             case "real_name":

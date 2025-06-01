@@ -10,6 +10,8 @@
 - 昵称屏蔽词过滤
 - 支持PlaceholderAPI占位符
 - 自定义聊天、加入和退出消息格式
+- 自定义TAB列表显示格式
+- 自定义占位符显示格式
 - 命令系统支持别名和Tab补全
 
 ## 命令
@@ -66,6 +68,13 @@
 # 是否启用昵称占位符支持
 placeholder: false
 
+# 占位符显示格式配置
+placeholder-format:
+  # %pnn% 占位符的默认显示格式
+  pnn-format: "{nickname}"
+  # %pnn_nickname% 占位符的默认显示格式
+  pnn-nickname-format: "{nickname}"
+
 # 屏蔽词列表
 Block-words:
   - sb
@@ -73,6 +82,12 @@ Block-words:
 
 # 是否覆盖默认聊天格式
 override-chat-format: false
+
+# 是否覆盖TAB列表名称格式
+override-tab-format: false
+
+# TAB列表名称格式
+tab-format: "&7[&r%pnn%&7] %player%"
 
 # 聊天格式配置
 chat-format:

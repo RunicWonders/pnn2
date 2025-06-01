@@ -1,10 +1,10 @@
 name: PNN
-version: 1.0.0
+version: 1.1.0
 main: cn.ningmo.pnn.PNN
 api-version: 1.21
 author: 柠枺
 description: 一个不需要任何前置插件且轻量级的玩家昵称插件。
-softdepend: [PlaceholderAPI]
+softdepend: [PlaceholderAPI, Vault]
 
 commands:
   pnn:

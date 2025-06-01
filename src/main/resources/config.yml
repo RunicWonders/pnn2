@@ -13,12 +13,38 @@
 # 默认: false（不启用）
 placeholder: false
 
+# 占位符显示格式配置
+# 可用变量:
+# {nickname} - 玩家的昵称（如果有）
+# {player} - 玩家的真实ID
+placeholder-format:
+  # %pnn% 占位符的默认显示格式（用于聊天和加入/退出消息）
+  # 默认: {nickname}（直接显示昵称，如果没有昵称则显示真实ID）
+  pnn-format: "{nickname}"
+  
+  # %pnn_nickname% 占位符的默认显示格式（PlaceholderAPI）
+  # 默认: {nickname}（直接显示昵称，如果没有昵称则显示真实ID）
+  pnn-nickname-format: "{nickname}"
+
 # 昵称屏蔽词列表
 # 玩家无法使用包含这些词语的昵称
 Block-words:
   - sb
   - 傻逼
   # 可以根据需要添加更多屏蔽词
+
+# 经济系统配置
+economy:
+  # 是否启用经济系统
+  enabled: false
+  # 设置昵称的费用
+  set-nickname-cost: 100.0
+  # 重置昵称的费用
+  reset-nickname-cost: 50.0
+  # 是否在设置/重置昵称时返还部分费用
+  refund-on-reset: true
+  # 返还比例 (0.0-1.0)
+  refund-ratio: 0.5
 
 #-------------------------------
 #              ==昵称设置==

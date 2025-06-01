@@ -2,6 +2,7 @@ package cn.ningmo.pnn.commands;
 
 import cn.ningmo.pnn.PNN;
 import cn.ningmo.pnn.managers.NicknameManager;
+import cn.ningmo.pnn.managers.EconomyManager;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.OfflinePlayer;
@@ -105,60 +106,57 @@ public class PNNCommand implements CommandExecutor, TabCompleter {
      * 处理设置昵称命令
      */
     private boolean handleSetCommand(CommandSender sender, String[] args) {
-        // 检查发送者是否为玩家
         if (!(sender instanceof Player)) {
-            sender.sendMessage(ChatColor.RED + "此命令只能由玩家执行！使用 /pnn admin set <玩家> <昵称> 为其他玩家设置昵称。");
+            sender.sendMessage(ChatColor.RED + "只有玩家才能使用此命令！");
             return true;
         }
-        
+
         Player player = (Player) sender;
-        
-        // 检查权限
         if (!player.hasPermission("pnn.set")) {
             player.sendMessage(ChatColor.RED + "你没有权限设置昵称！");
             return true;
         }
-        
-        // 检查参数数量
+
         if (args.length < 2) {
             player.sendMessage(ChatColor.RED + "用法: /pnn set <昵称>");
             return true;
         }
+
+        String nickname = String.join(" ", Arrays.copyOfRange(args, 1, args.length));
         
-        // 获取昵称参数
-        String nickname = args[1];
-        for (int i = 2; i < args.length; i++) {
-            nickname += " " + args[i];
+        // 检查经济系统
+        EconomyManager economyManager = plugin.getEconomyManager();
+        if (economyManager.isEnabled()) {
+            double cost = economyManager.getSetNicknameCost();
+            if (!economyManager.hasEnoughMoney(player, cost)) {
+                player.sendMessage(ChatColor.RED + "你没有足够的金钱！需要: " + 
+                    economyManager.formatMoney(cost));
+                return true;
+            }
         }
-        
-        // 设置昵称
-        boolean success = nicknameManager.setNickname(player, nickname);
-        
-        if (success) {
-            player.sendMessage(ChatColor.GREEN + "昵称设置成功！现在你的昵称是：" + ChatColor.RESET + nicknameManager.getNickname(player));
+
+        if (nicknameManager.setNickname(player, nickname)) {
+            // 扣除费用
+            if (economyManager.isEnabled()) {
+                double cost = economyManager.getSetNicknameCost();
+                if (economyManager.withdrawMoney(player, cost)) {
+                    player.sendMessage(ChatColor.GREEN + "成功设置昵称为: " + ChatColor.RESET + nickname);
+                    player.sendMessage(ChatColor.GRAY + "花费: " + economyManager.formatMoney(cost));
+                } else {
+                    player.sendMessage(ChatColor.RED + "扣除费用失败，昵称设置已取消！");
+                    nicknameManager.removeNickname(player);
+                    return true;
+                }
+            } else {
+                player.sendMessage(ChatColor.GREEN + "成功设置昵称为: " + ChatColor.RESET + nickname);
+            }
             
-            // 更新玩家显示名称和Tab名称
+            // 更新玩家显示名称
             updatePlayerDisplayNames(player);
         } else {
-            // 获取配置中的限制信息
-            int maxLength = plugin.getConfig().getInt("max-nickname-length", 32);
-            boolean allowColors = plugin.getConfig().getBoolean("allow-colors", true);
-            boolean allowFormats = plugin.getConfig().getBoolean("allow-formats", true);
-            
-            player.sendMessage(ChatColor.RED + "设置昵称失败！请检查以下可能的原因：");
-            player.sendMessage(ChatColor.RED + "- 昵称可能包含屏蔽词");
-            player.sendMessage(ChatColor.RED + "- 昵称可能已被其他玩家使用");
-            player.sendMessage(ChatColor.RED + "- 昵称长度超过限制（最大" + maxLength + "个字符）");
-            
-            if (!allowColors) {
-                player.sendMessage(ChatColor.RED + "- 昵称不允许使用颜色代码(&+颜色符号)");
-            }
-            
-            if (!allowFormats) {
-                player.sendMessage(ChatColor.RED + "- 昵称不允许使用格式代码(&k, &l, &m, &n, &o, &r)");
-            }
+            player.sendMessage(ChatColor.RED + "设置昵称失败！可能原因：昵称已被使用、包含屏蔽词或长度超出限制。");
         }
-        
+
         return true;
     }
     
@@ -166,47 +164,59 @@ public class PNNCommand implements CommandExecutor, TabCompleter {
      * 处理重置昵称命令
      */
     private boolean handleResetCommand(CommandSender sender) {
-        // 检查发送者是否为玩家
         if (!(sender instanceof Player)) {
-            sender.sendMessage(ChatColor.RED + "此命令只能由玩家执行！使用 /pnn admin reset <玩家> 重置其他玩家的昵称。");
+            sender.sendMessage(ChatColor.RED + "只有玩家才能使用此命令！");
             return true;
         }
-        
+
         Player player = (Player) sender;
-        
-        // 检查权限
         if (!player.hasPermission("pnn.reset")) {
             player.sendMessage(ChatColor.RED + "你没有权限重置昵称！");
             return true;
         }
-        
-        // 重置昵称
-        boolean success = nicknameManager.removeNickname(player);
-        
-        if (success) {
-            player.sendMessage(ChatColor.GREEN + "昵称已重置！");
-            
-            boolean setDisplayName = plugin.getConfig().getBoolean("set-display-name", true);
-            boolean overrideChatFormat = plugin.getConfig().getBoolean("override-chat-format", false);
-            boolean overrideTabFormat = plugin.getConfig().getBoolean("override-tab-format", false);
-            
-            // 根据配置决定是否重置显示名称
-            if (setDisplayName || overrideChatFormat) {
-                player.setDisplayName(player.getName());
+
+        // 检查经济系统
+        EconomyManager economyManager = plugin.getEconomyManager();
+        if (economyManager.isEnabled()) {
+            double cost = economyManager.getResetNicknameCost();
+            if (!economyManager.hasEnoughMoney(player, cost)) {
+                player.sendMessage(ChatColor.RED + "你没有足够的金钱！需要: " + 
+                    economyManager.formatMoney(cost));
+                return true;
             }
-            
-            // 根据配置决定是否重置TAB列表名称
-            if (overrideTabFormat) {
-                try {
-                    player.setPlayerListName(player.getName());
-                } catch (Exception e) {
-                    plugin.getLogger().warning("无法重置玩家" + player.getName() + "的Tab列表名称：" + e.getMessage());
-                }
-            }
-        } else {
-            player.sendMessage(ChatColor.RED + "你没有设置昵称！");
         }
-        
+
+        String oldNickname = nicknameManager.getRawNickname(player);
+        if (nicknameManager.removeNickname(player)) {
+            // 扣除费用
+            if (economyManager.isEnabled()) {
+                double cost = economyManager.getResetNicknameCost();
+                if (economyManager.withdrawMoney(player, cost)) {
+                    player.sendMessage(ChatColor.GREEN + "成功重置昵称！");
+                    player.sendMessage(ChatColor.GRAY + "花费: " + economyManager.formatMoney(cost));
+                    
+                    // 如果启用了返还功能，返还部分设置费用
+                    if (economyManager.isRefundOnReset() && !oldNickname.equals(player.getName())) {
+                        double refund = economyManager.getSetNicknameCost() * economyManager.getRefundRatio();
+                        if (economyManager.depositMoney(player, refund)) {
+                            player.sendMessage(ChatColor.GRAY + "返还设置费用: " + 
+                                economyManager.formatMoney(refund));
+                        }
+                    }
+                } else {
+                    player.sendMessage(ChatColor.RED + "扣除费用失败，昵称重置已取消！");
+                    return true;
+                }
+            } else {
+                player.sendMessage(ChatColor.GREEN + "成功重置昵称！");
+            }
+            
+            // 更新玩家显示名称
+            updatePlayerDisplayNames(player);
+        } else {
+            player.sendMessage(ChatColor.RED + "重置昵称失败！你可能没有设置昵称。");
+        }
+
         return true;
     }
     
