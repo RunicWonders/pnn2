@@ -19,7 +19,11 @@ public class EconomyManager {
         this.plugin = plugin;
         loadConfig();
         if (enabled) {
-            setupEconomy();
+            if (setupEconomy()) {
+                plugin.getLogger().info("经济系统已成功集成，准备就绪。");
+            }
+        } else {
+            plugin.getLogger().info("经济系统已禁用。");
         }
     }
 
@@ -84,7 +88,12 @@ public class EconomyManager {
 
     public String formatMoney(double amount) {
         if (!isEnabled()) return String.valueOf(amount);
-        return economy.format(amount);
+        try {
+            return economy.currencyNamePlural() + " " + amount;
+        } catch (Exception e) {
+            // 如果currencyNamePlural()不可用，使用默认格式
+            return economy.format(amount);
+        }
     }
 
     public void reloadConfig() {
